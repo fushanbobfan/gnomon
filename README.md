@@ -66,6 +66,23 @@ anticlockwise. Hours when the sun can never be up at that place are left off.
 Set the dial level with the noon line toward true (not magnetic) north or
 south, and add an hour in summer time.
 
+## From a noon shadow
+
+The dial also runs backwards. Measure a vertical stick and its shortest
+shadow of the day, say which way the shadow points, and the selected date's
+declination gives your latitude: the noon sun's zenith angle is
+atan(shadow / stick), and latitude is the declination plus that angle when
+the shadow points north, minus it when it points south. **Measure here**
+fills in the shadow the current place casts, so you can see the method
+recover the latitude it started from.
+
+Open **Size the Earth** for a second stick due north or south of the first,
+measured the same day. The difference of the two noon angles is the arc
+between the places, and the distance between them scaled to 360° is the
+Earth's circumference. With the defaults, a shadowless stick (Syene, now
+Aswan, at the solstice) and a shadow of 0.126 stick heights 800 km to the
+north, the arc is 7.18° and the Earth comes out at about 40,100 km around.
+
 ## What to try
 
 - **Greenwich, clock hours.** The hour figures are long thin eights; the
@@ -98,6 +115,7 @@ Each preset's note is checked against the model in `test/places.test.js`.
 | Atmospheric refraction | Lift the sun by the standard refraction near the horizon |
 | Copy link, Save dial PNG | Share the current view; save the ground view |
 | Download sundial SVG, Print sundial | The printable dial for this place and clock |
+| Stick, Shadow, Measure here, Go to that latitude | Latitude from a noon shadow |
 
 Keys: ←/→ move the time by 10 minutes (Shift: an hour), ↑/↓ move the date by
 a day, space runs the day.
@@ -132,6 +150,9 @@ tan θ = sin φ · tan H.
   solar hour lines meet at the foot of the polar axis at the predicted
   angles, and that a fixed clock hour traces an analemma while a fixed solar
   hour does not;
+- that a noon shadow taken from the model gives back the latitude it came
+  from, and that Aswan and Alexandria's model shadows at the solstice give
+  the Earth's circumference within 60 km;
 - that the shadow of the printed dial's style falls on the line for the
   dial reading at any sunlit moment, in both hemispheres, and that the
   correction table is the equation of time with its sign flipped;

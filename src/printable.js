@@ -71,6 +71,20 @@ export function dialLines({ lat, lon, tz }) {
   return lines;
 }
 
+// Numeral positions for the whole hours. Near-midnight lines at high
+// latitudes converge just below the foot, so numerals are placed daytime
+// hours first and any that would overlap one already placed are dropped.
+export function dialNumerals(lines, minGap = 5) {
+  const placed = [];
+  const whole = lines.filter((l) => l.whole).sort((a, b) => Math.abs(a.hourAngle) - Math.abs(b.hourAngle));
+  for (const l of whole) {
+    const x = FOOT.x + l.dir.x * l.label;
+    const y = FOOT.y - l.dir.y * l.label;
+    if (placed.every((p) => Math.hypot(p.x - x, p.y - y) >= minGap)) placed.push({ hour: l.hour, x, y });
+  }
+  return placed;
+}
+
 // Equation-of-time correction on the 1st and 15th of each month, in whole
 // minutes to add to the dial reading to get clock time.
 export function correctionTable(year) {
@@ -117,10 +131,9 @@ export function dialSvg({ lat, lon, tz, year = 2026, name = '' }) {
     const a = P(l.dir, l.start);
     const b = P(l.dir, l.end);
     out.push(`<line x1="${f(a.x)}" y1="${f(a.y)}" x2="${f(b.x)}" y2="${f(b.y)}" stroke-width="${l.whole ? (l.hour === 12 ? 0.8 : 0.5) : 0.3}"/>`);
-    if (l.whole) {
-      const c = P(l.dir, l.label);
-      out.push(`<text x="${f(c.x)}" y="${f(c.y + 1.6)}" text-anchor="middle" font-size="4.5" fill="#222" stroke="none">${l.hour}</text>`);
-    }
+  }
+  for (const n of dialNumerals(lines)) {
+    out.push(`<text x="${f(n.x)}" y="${f(n.y + 1.6)}" text-anchor="middle" font-size="4.5" fill="#222" stroke="none">${n.hour}</text>`);
   }
   out.push(`<circle cx="${FOOT.x}" cy="${FOOT.y}" r="1" fill="#222" stroke="none"/>`);
 

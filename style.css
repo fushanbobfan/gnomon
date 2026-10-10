@@ -309,6 +309,23 @@ select:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+.result {
+  margin: 6px 0 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+details {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+
+summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
 .choice label,
 .check {
   display: block;
