@@ -60,7 +60,7 @@ export function drawSky(ctx, width, height, data, colors) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (const [label, az] of [['N', 0], ['E', 90], ['S', 180], ['W', 270]]) {
-    const p = skyPoint(-12, az, R);
+    const p = skyPoint(0, az, R + 11);
     ctx.fillText(label, cx + p.x, cy + p.y);
   }
   ctx.fillStyle = colors.muted;
@@ -112,8 +112,9 @@ export function drawSky(ctx, width, height, data, colors) {
   }
 }
 
-// Ground extent in gnomon heights: room for the longer noon shadow of the two
-// solstices, within limits that keep a low winter sun from shrinking the dial.
+// Ground extent in gnomon heights: room for the longest of the given noon
+// shadows (solstices and equinox), within limits that keep a low winter sun
+// from shrinking the dial to a dot.
 export function groundExtent(noonAltitudes) {
   const lens = noonAltitudes.filter((a) => a > 1).map((a) => 1 / Math.tan((a * Math.PI) / 180));
   const longest = lens.length ? Math.max(...lens) : 3;
@@ -227,10 +228,11 @@ export function drawYear(ctx, width, height, data, colors) {
   ctx.fillStyle = colors.night;
   ctx.fillRect(L.left, L.top, L.w, L.h);
 
+  // Whole-pixel columns, so neighbouring days meet without seams.
   ctx.fillStyle = colors.daylight;
-  const colW = L.w / n + 0.6;
   data.days.forEach((d, i) => {
-    const x = L.left + (i / n) * L.w;
+    const x = Math.round(L.left + (i / n) * L.w);
+    const colW = Math.round(L.left + ((i + 1) / n) * L.w) - x;
     if (d.polar === 'day') ctx.fillRect(x, L.top, colW, L.h);
     else if (d.polar === null) {
       const a = Math.max(0, d.sunrise);
