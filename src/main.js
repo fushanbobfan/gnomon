@@ -14,6 +14,7 @@ import { drawSky, drawGround, drawYear, groundExtent, yearPick } from './render.
 import { PLACES, findPlace } from './places.js';
 import { encodeState, decodeState } from './share.js';
 import { dialSvg } from './printable.js';
+import { latitudeFromNoonShadow, circumferenceFromShadows } from './inverse.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -236,10 +237,39 @@ function render() {
 
   updateReadout(sun, events);
   updatePrintable();
+  updateInverse();
   els.sky.setAttribute(
     'aria-label',
     `Sun-path chart. The sun is at altitude ${sun.alt.toFixed(1)} degrees, azimuth ${sun.az.toFixed(0)} degrees.`
   );
+}
+
+// Declination at the selected place's solar noon on the selected date.
+function noonDeclination() {
+  const ev = dayEvents(place(), date());
+  return sunAt(place(), date(), ev.noon, { refract: false }).declination;
+}
+
+let inverseLat = null;
+function updateInverse() {
+  const h = Number($('inv-height').value);
+  const L = Number($('inv-shadow').value);
+  const points = $('inv-points').value;
+  inverseLat = latitudeFromNoonShadow(h, L, points, noonDeclination());
+  $('inv-result').textContent =
+    inverseLat === null
+      ? 'No latitude fits that shadow on this date.'
+      : `Latitude ≈ ${Math.abs(inverseLat).toFixed(2)}° ${inverseLat >= 0 ? 'N' : 'S'}`;
+  $('inv-go').disabled = inverseLat === null;
+
+  const era = circumferenceFromShadows(
+    { height: h, shadow: L, points },
+    { height: 1, shadow: Number($('era-shadow').value), points: $('era-points').value },
+    Number($('era-distance').value)
+  );
+  $('era-result').textContent = era
+    ? `Arc ${era.angle.toFixed(2)}°, so the Earth is about ${Math.round(era.circumference).toLocaleString('en')} km around (radius ${Math.round(era.radius).toLocaleString('en')} km).`
+    : 'The two shadows need different noon angles and a distance above zero.';
 }
 
 let printKey = '';
@@ -448,6 +478,28 @@ $('dial-print').addEventListener('click', () => {
   w.document.close();
   w.focus();
   w.print();
+});
+
+for (const id of ['inv-height', 'inv-shadow', 'inv-points', 'era-shadow', 'era-points', 'era-distance']) {
+  $(id).addEventListener('input', updateInverse);
+}
+$('inv-measure').addEventListener('click', () => {
+  const ev = dayEvents(place(), date());
+  const sun = sunAt(place(), date(), ev.noon, { refract: false });
+  if (sun.alt <= 0) {
+    els.status.textContent = 'The sun stays below the horizon here on this date.';
+    return;
+  }
+  const h = Number($('inv-height').value) > 0 ? Number($('inv-height').value) : 1;
+  $('inv-height').value = h;
+  $('inv-shadow').value = Number((h / Math.tan((sun.alt * Math.PI) / 180)).toPrecision(4));
+  $('inv-points').value = sun.az > 90 && sun.az < 270 ? 'north' : 'south';
+  updateInverse();
+});
+$('inv-go').addEventListener('click', () => {
+  if (inverseLat === null) return;
+  state.lat = Math.round(Math.min(89.9, Math.max(-89.9, inverseLat)) * 10000) / 10000;
+  changed();
 });
 
 window.addEventListener('hashchange', () => {

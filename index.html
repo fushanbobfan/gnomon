@@ -131,6 +131,53 @@
         </fieldset>
 
         <fieldset>
+          <legend>From a noon shadow</legend>
+          <p class="hint">
+            Measure a vertical stick and its shortest shadow of the day. With the date above, that is
+            enough to find your latitude.
+          </p>
+          <label class="row">
+            <span>Stick</span>
+            <input type="number" id="inv-height" min="0" step="any" value="1" aria-label="Stick height" />
+            <span></span>
+          </label>
+          <label class="row">
+            <span>Shadow</span>
+            <input type="number" id="inv-shadow" min="0" step="any" value="0" aria-label="Noon shadow length, same units as the stick" />
+            <select id="inv-points" aria-label="Direction the shadow points">
+              <option value="north">points N</option>
+              <option value="south">points S</option>
+            </select>
+          </label>
+          <p class="result" id="inv-result" aria-live="polite"></p>
+          <div class="buttons">
+            <button type="button" id="inv-measure" title="Fill in the noon shadow the current place casts on the selected date">Measure here</button>
+            <button type="button" id="inv-go">Go to that latitude</button>
+          </div>
+          <details>
+            <summary>Size the Earth, as Eratosthenes did</summary>
+            <p class="hint">
+              A second stick, the same day, due north or south of the first. The difference in the two
+              noon sun angles is the arc between the places.
+            </p>
+            <label class="row">
+              <span>Shadow 2</span>
+              <input type="number" id="era-shadow" min="0" step="any" value="0.126" aria-label="Second noon shadow, per unit of stick height" />
+              <select id="era-points" aria-label="Direction the second shadow points">
+                <option value="north">points N</option>
+                <option value="south">points S</option>
+              </select>
+            </label>
+            <label class="row">
+              <span>Distance</span>
+              <input type="number" id="era-distance" min="0" step="any" value="800" aria-label="Distance between the sticks in kilometres" />
+              <span>km</span>
+            </label>
+            <p class="result" id="era-result" aria-live="polite"></p>
+          </details>
+        </fieldset>
+
+        <fieldset>
           <legend>View</legend>
           <div class="choice" role="radiogroup" aria-label="Hour marks">
             <label><input type="radio" name="hours" value="clock" /> Clock hours (figure eights)</label>
