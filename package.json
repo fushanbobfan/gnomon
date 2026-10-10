@@ -1,0 +1,25 @@
+{
+  "name": "gnomon",
+  "version": "0.1.0",
+  "description": "A sundial and sun-path lab in the browser: where the sun stands for any place, date and time, the shadow it casts, and why sundials and clocks disagree.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "serve": "node scripts/serve.js"
+  },
+  "keywords": [
+    "sundial",
+    "sun-path",
+    "analemma",
+    "equation-of-time",
+    "astronomy",
+    "canvas"
+  ],
+  "license": "MIT",
+  "author": "Jiayi Fan",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fushanbobfan/gnomon.git"
+  },
+  "private": false
+}
