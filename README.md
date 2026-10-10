@@ -46,6 +46,26 @@ Run the tests with `npm test` (Node 20 or later, no dependencies).
   its offset from 12:00 is the distance to the zone meridian. Click anywhere
   to jump to that date and time.
 
+## A sundial to print
+
+Under the charts is a horizontal sundial for the chosen place and clock, as
+an A4 sheet (200 × 287 mm) you can download as SVG or print at 100%:
+
+- hour and half-hour lines for **clock** time. Each line sits at the hour
+  angle the sun has at that clock reading, so the offset to the zone meridian
+  is built in: Kashgar's noon line is labelled 15, Los Angeles' 12 sits just
+  off the meridian;
+- a gnomon template, a right triangle whose angle at the foot equals the
+  latitude, so its sloping edge points at the celestial pole;
+- a table for the 1st and 15th of each month of the minutes to add to the
+  dial reading to get clock time (the equation of time with its sign
+  flipped).
+
+Southern dials are mirrored: the noon line points south and the hours run
+anticlockwise. Hours when the sun can never be up at that place are left off.
+Set the dial level with the noon line toward true (not magnetic) north or
+south, and add an hour in summer time.
+
 ## What to try
 
 - **Greenwich, clock hours.** The hour figures are long thin eights; the
@@ -77,6 +97,7 @@ Each preset's note is checked against the model in `test/places.test.js`.
 | Clock or sundial hours | Hour marks at fixed clock times or fixed apparent solar times |
 | Atmospheric refraction | Lift the sun by the standard refraction near the horizon |
 | Copy link, Save dial PNG | Share the current view; save the ground view |
+| Download sundial SVG, Print sundial | The printable dial for this place and clock |
 
 Keys: ←/→ move the time by 10 minutes (Shift: an hour), ↑/↓ move the date by
 a day, space runs the day.
@@ -111,6 +132,9 @@ tan θ = sin φ · tan H.
   solar hour lines meet at the foot of the polar axis at the predicted
   angles, and that a fixed clock hour traces an analemma while a fixed solar
   hour does not;
+- that the shadow of the printed dial's style falls on the line for the
+  dial reading at any sunlit moment, in both hemispheres, and that the
+  correction table is the equation of time with its sign flipped;
 - every place note, the share-link round trip and clamping, and that all
   three views draw finite geometry from the tropics to Antarctica.
 
