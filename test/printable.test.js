@@ -5,6 +5,7 @@ import {
   hourLineDirection,
   hourCanBeLit,
   dialLines,
+  dialNumerals,
   correctionTable,
   dialSvg,
   coordText,
@@ -123,4 +124,19 @@ test('coordinates and zones print the way people write them', () => {
   assert.equal(zoneText(0), 'UTC+0');
   assert.equal(zoneText(5.5), 'UTC+5:30');
   assert.equal(zoneText(-8), 'UTC−8');
+});
+
+test('dial numerals never overprint, and daytime hours keep theirs', () => {
+  for (const place of [{ lat: 68.44, lon: 151.21, tz: 10 }, { lat: 69.65, lon: 18.96, tz: 1 }, { lat: 51.48, lon: 0, tz: 0 }]) {
+    const nums = dialNumerals(dialLines(place));
+    for (let i = 0; i < nums.length; i++) {
+      for (let j = i + 1; j < nums.length; j++) {
+        assert.ok(Math.hypot(nums[i].x - nums[j].x, nums[i].y - nums[j].y) >= 5, `${place.lat}: ${nums[i].hour} and ${nums[j].hour}`);
+      }
+    }
+    const hours = new Set(nums.map((n) => n.hour));
+    for (let h = 8; h <= 16; h++) assert.ok(hours.has(h), `${place.lat}: hour ${h}`);
+  }
+  const london = dialNumerals(dialLines({ lat: 51.48, lon: 0, tz: 0 }));
+  assert.equal(london.length, 17, 'nothing dropped at a mid latitude');
 });
