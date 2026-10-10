@@ -63,8 +63,9 @@ export function dialLines({ lat, lon, tz }) {
       hourAngle: wrapped,
       dir,
       start: whole ? 0 : len - 10,
-      end: len,
-      label: whole ? rayToPlate(dir, 7) : null,
+      // Whole-hour lines stop short of their numeral near the plate edge.
+      end: whole ? rayToPlate(dir, 9) : len,
+      label: whole ? rayToPlate(dir, 4.5) : null,
     });
   }
   return lines;
@@ -125,9 +126,9 @@ export function dialSvg({ lat, lon, tz, year = 2026, name = '' }) {
 
   const eastX = lat >= 0 ? PLATE.right - 4 : PLATE.left + 4;
   const westX = lat >= 0 ? PLATE.left + 4 : PLATE.right - 4;
-  out.push(`<text x="100" y="${PLATE.top + 5}" text-anchor="middle" font-size="4" fill="#666" stroke="none">${pole}</text>`);
-  out.push(`<text x="${eastX}" y="${PLATE.bottom - 3}" text-anchor="middle" font-size="4" fill="#666" stroke="none">E</text>`);
-  out.push(`<text x="${westX}" y="${PLATE.bottom - 3}" text-anchor="middle" font-size="4" fill="#666" stroke="none">W</text>`);
+  out.push(`<text x="100" y="${PLATE.top - 2}" text-anchor="middle" font-size="4" fill="#666" stroke="none">${pole}</text>`);
+  out.push(`<text x="${eastX}" y="${PLATE.bottom + 5}" text-anchor="middle" font-size="4" fill="#666" stroke="none">E</text>`);
+  out.push(`<text x="${westX}" y="${PLATE.bottom + 5}" text-anchor="middle" font-size="4" fill="#666" stroke="none">W</text>`);
 
   // Gnomon template: a right triangle with the latitude angle at the foot.
   const phi = Math.abs(lat);
@@ -136,7 +137,7 @@ export function dialSvg({ lat, lon, tz, year = 2026, name = '' }) {
   const run = rise / Math.tan(Math.max(phi, 1) * DEG);
   const gx = 12, gy = 270;
   out.push(`<polygon points="${f(gx)},${f(gy)} ${f(gx + run)},${f(gy)} ${f(gx + run)},${f(gy - rise)}" stroke-width="0.4" stroke-dasharray="2 1.5"/>`);
-  out.push(`<text x="${gx}" y="${gy + 6}" font-size="3.6" fill="#222" stroke="none">Gnomon: cut out and stand it on the noon line, the ${phi.toFixed(1)}° corner on the dot, tall edge toward ${pole}.</text>`);
+  out.push(`<text x="${gx}" y="${gy + 7}" font-size="3.6" fill="#222" stroke="none">Gnomon: cut out and stand it on the noon line, the ${phi.toFixed(1)}° corner on the dot, tall edge toward ${pole}.</text>`);
 
   out.push(`<text x="104" y="203" font-size="4" fill="#222" stroke="none">Add to the dial reading for clock time (minutes)</text>`);
   const rows = correctionTable(year);
@@ -146,7 +147,7 @@ export function dialSvg({ lat, lon, tz, year = 2026, name = '' }) {
     out.push(`<text x="148" y="${f(y)}" text-anchor="end" font-size="3.8" fill="#222" stroke="none">1st ${signed(r.first)}</text>`);
     out.push(`<text x="185" y="${f(y)}" text-anchor="end" font-size="3.8" fill="#222" stroke="none">15th ${signed(r.fifteenth)}</text>`);
   });
-  out.push(`<text x="104" y="281" font-size="3.2" fill="#666" stroke="none">Set level, noon line toward the ${lat >= 0 ? 'north' : 'south'} (true, not magnetic). Add an hour in summer time.</text>`);
+  out.push(`<text x="${gx}" y="${gy + 13}" font-size="3.2" fill="#666" stroke="none">Set level, noon line toward the ${lat >= 0 ? 'north' : 'south'} (true, not magnetic). Add an hour in summer time.</text>`);
   if (Math.abs(lat) < 10) {
     out.push(`<text x="100" y="196" text-anchor="middle" font-size="3.4" fill="#a33" stroke="none">So close to the equator the hour lines crowd together; a vertical or equatorial dial reads better.</text>`);
   }

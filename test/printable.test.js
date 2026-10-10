@@ -85,7 +85,7 @@ test('lines stay on the plate and half hours are short ticks', () => {
       const y = FOOT.y - l.dir.y * l.end;
       assert.ok(x >= 9.99 && x <= 190.01 && y >= 21.99 && y <= 190.01, `${place.lat} ${l.minutes}`);
       if (!l.whole) near(l.end - l.start, 10, 1e-9);
-      else assert.ok(l.label < l.end);
+      else assert.ok(l.label > l.end, 'numeral sits beyond the end of its line');
     }
   }
 });
