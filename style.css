@@ -315,6 +315,20 @@ select:focus-visible {
   margin: 4px 0;
 }
 
+.print-preview {
+  max-width: 420px;
+  margin: 8px auto 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.print-preview svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 footer a {
   color: var(--accent);
 }
