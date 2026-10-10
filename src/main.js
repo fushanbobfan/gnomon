@@ -13,6 +13,7 @@ import { dayPath, yearAtHour, declinationCurve, solarHourLine, shadowTip, shadow
 import { drawSky, drawGround, drawYear, groundExtent, yearPick } from './render.js';
 import { PLACES, findPlace } from './places.js';
 import { encodeState, decodeState } from './share.js';
+import { dialSvg } from './printable.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -234,10 +235,23 @@ function render() {
   );
 
   updateReadout(sun, events);
+  updatePrintable();
   els.sky.setAttribute(
     'aria-label',
     `Sun-path chart. The sun is at altitude ${sun.alt.toFixed(1)} degrees, azimuth ${sun.az.toFixed(0)} degrees.`
   );
+}
+
+let printKey = '';
+function currentDialSvg() {
+  const p = PLACES.find((q) => q.lat === state.lat && q.lon === state.lon && q.tz === state.tz);
+  return dialSvg({ lat: state.lat, lon: state.lon, tz: state.tz, year: state.year, name: p ? p.name : '' });
+}
+function updatePrintable() {
+  const key = `${state.lat}|${state.lon}|${state.tz}|${state.year}`;
+  if (key === printKey) return;
+  printKey = key;
+  $('print-preview').innerHTML = currentDialSvg();
 }
 
 function schedule() {
@@ -411,6 +425,29 @@ $('png').addEventListener('click', () => {
   a.download = `gnomon-${state.lat.toFixed(2)}-${state.lon.toFixed(2)}-${d}.png`;
   a.href = els.ground.toDataURL('image/png');
   a.click();
+});
+
+$('dial-svg').addEventListener('click', () => {
+  const blob = new Blob([currentDialSvg()], { type: 'image/svg+xml' });
+  const a = document.createElement('a');
+  a.download = `sundial-${state.lat.toFixed(2)}-${state.lon.toFixed(2)}.svg`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+$('dial-print').addEventListener('click', () => {
+  const w = window.open('', '_blank');
+  if (!w) {
+    els.status.textContent = 'Allow pop-ups to print, or download the SVG instead.';
+    return;
+  }
+  w.document.write(
+    `<!doctype html><title>Sundial</title><style>@page{size:A4;margin:5mm}body{margin:0}svg{display:block}</style>${currentDialSvg()}`
+  );
+  w.document.close();
+  w.focus();
+  w.print();
 });
 
 window.addEventListener('hashchange', () => {
