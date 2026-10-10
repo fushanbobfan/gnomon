@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>gnomon · sundial and sun-path lab</title>
+    <meta name="description" content="Where the sun stands for any place, date and time, the shadow it casts on level ground, and why a sundial and a clock disagree." />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>gnomon</h1>
+      <p class="subtitle">
+        A pin stands on level ground. Choose a place, a date and a time to see where the sun stands,
+        where the pin's shadow falls, and the curves the shadow tip draws through the day and the year.
+      </p>
+    </header>
+
+    <main>
+      <section class="views">
+        <figure class="view">
+          <figcaption>Sky, seen from above</figcaption>
+          <canvas id="sky" role="img" aria-label="Sun-path chart of the sky"></canvas>
+          <p class="legend">
+            <span class="key today"></span> selected day
+            <span class="key june"></span> June solstice
+            <span class="key equinox"></span> equinoxes
+            <span class="key december"></span> December solstice
+            <span class="key hour"></span> <span id="sky-hour-legend">same clock hour all year</span>
+          </p>
+        </figure>
+        <figure class="view">
+          <figcaption>Ground around the pin <span class="hint">(rings at 1, 2, 3… pin heights)</span></figcaption>
+          <canvas id="ground" role="img" aria-label="Shadow of the pin on level ground"></canvas>
+          <p class="legend">
+            <span class="key shadow"></span> shadow now
+            <span class="key today"></span> tip today
+            <span class="key hour"></span> <span id="ground-hour-legend">tip at each clock hour through the year</span>
+          </p>
+        </figure>
+        <figure class="view wide">
+          <figcaption>Daylight through the year, by the clock</figcaption>
+          <canvas id="year" role="img" aria-label="Sunrise to sunset for every day of the year"></canvas>
+          <p class="legend">
+            <span class="key daylight"></span> sun up
+            <span class="key noon"></span> solar noon
+            <span class="key today"></span> selected date and time (click to move)
+          </p>
+        </figure>
+      </section>
+
+      <aside class="panel">
+        <fieldset>
+          <legend>Place</legend>
+          <label class="row">
+            <span>Preset</span>
+            <select id="place">
+              <option value="">Custom</option>
+            </select>
+          </label>
+          <p class="note" id="place-note"></p>
+          <label class="row">
+            <span>Latitude</span>
+            <input type="range" id="lat-range" min="-89.9" max="89.9" step="0.1" />
+            <input type="number" id="lat" min="-89.9" max="89.9" step="0.0001" aria-label="Latitude in degrees, north positive" />
+          </label>
+          <label class="row">
+            <span>Longitude</span>
+            <input type="range" id="lon-range" min="-180" max="180" step="0.1" />
+            <input type="number" id="lon" min="-180" max="180" step="0.0001" aria-label="Longitude in degrees, east positive" />
+          </label>
+          <label class="row">
+            <span>Clock</span>
+            <span class="inline">UTC <input type="number" id="tz" min="-12" max="14" step="0.25" aria-label="Clock offset from UTC in hours" /> h</span>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>When</legend>
+          <label class="row">
+            <span>Date</span>
+            <input type="date" id="date" min="1900-01-01" max="2100-12-31" />
+          </label>
+          <input type="range" id="day" min="1" max="365" step="1" aria-label="Day of the year" />
+          <div class="buttons small">
+            <button type="button" data-date="03-20">Mar equinox</button>
+            <button type="button" data-date="06-21">Jun solstice</button>
+            <button type="button" data-date="09-22">Sep equinox</button>
+            <button type="button" data-date="12-21">Dec solstice</button>
+          </div>
+          <label class="row">
+            <span>Time</span>
+            <input type="range" id="time" min="0" max="1439" step="1" aria-label="Clock time" />
+            <output id="time-out"></output>
+          </label>
+          <div class="buttons">
+            <button type="button" id="play-day" aria-pressed="false">Run the day</button>
+            <button type="button" id="play-year" aria-pressed="false">Run the year</button>
+            <button type="button" id="now">Now</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Sun now</legend>
+          <dl class="stats">
+            <dt>Altitude</dt><dd id="s-alt"></dd>
+            <dt>Azimuth</dt><dd id="s-az"></dd>
+            <dt>Shadow</dt><dd id="s-shadow"></dd>
+            <dt>Sundial reads</dt><dd id="s-solar"></dd>
+            <dt>Sunrise</dt><dd id="s-rise"></dd>
+            <dt>Solar noon</dt><dd id="s-noon"></dd>
+            <dt>Sunset</dt><dd id="s-set"></dd>
+            <dt>Day length</dt><dd id="s-length"></dd>
+            <dt>Declination</dt><dd id="s-decl"></dd>
+            <dt>Equation of time</dt><dd id="s-eot"></dd>
+          </dl>
+        </fieldset>
+
+        <fieldset>
+          <legend>View</legend>
+          <div class="choice" role="radiogroup" aria-label="Hour marks">
+            <label><input type="radio" name="hours" value="clock" /> Clock hours (figure eights)</label>
+            <label><input type="radio" name="hours" value="solar" /> Sundial hours (straight lines)</label>
+          </div>
+          <label class="check"><input type="checkbox" id="refract" /> Atmospheric refraction</label>
+          <div class="buttons">
+            <button type="button" id="share">Copy link</button>
+            <button type="button" id="png">Save dial PNG</button>
+          </div>
+          <p class="hint" id="status" aria-live="polite"></p>
+          <p class="hint">Keys: ←/→ time, ↑/↓ date, space runs the day.</p>
+        </fieldset>
+      </aside>
+    </main>
+
+    <footer>
+      <a href="https://github.com/fushanbobfan/gnomon">Source on GitHub</a>
+    </footer>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
